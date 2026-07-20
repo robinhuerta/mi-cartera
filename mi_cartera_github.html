@@ -118,7 +118,7 @@ h1,h2,h3{font-family:'Inter',sans-serif;font-weight:700;margin:0;}
 
 /* Ledger */
 .ledger{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);}
-.ledger-row{display:grid;grid-template-columns:1.7fr .9fr 1fr .8fr .7fr .8fr auto;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);}
+.ledger-row{display:grid;grid-template-columns:1.6fr .8fr .9fr .7fr .9fr .6fr .7fr auto;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);}
 .ledger-row:last-child{border-bottom:none;}
 .ledger-row.headrow{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);padding:10px 16px;background:var(--surface-2);}
 .ledger-row .name{font-weight:600;color:var(--text);}
@@ -280,6 +280,10 @@ h1,h2,h3{font-family:'Inter',sans-serif;font-weight:700;margin:0;}
           <div class="label">Tasa de cumplimiento</div>
           <div class="value" id="complianceRate">—</div>
         </div>
+        <div class="total-card">
+          <div class="label">Ganancia estimada (activas)</div>
+          <div class="value" id="estimatedGainTotal">—</div>
+        </div>
       </div>
 
       <div class="section-block">
@@ -340,6 +344,7 @@ h1,h2,h3{font-family:'Inter',sans-serif;font-weight:700;margin:0;}
           <div>Categoría</div>
           <div>Monto</div>
           <div>Retorno</div>
+          <div>Ganancia est.</div>
           <div>Riesgo</div>
           <div>Estado</div>
           <div></div>
@@ -777,6 +782,22 @@ function render(){
   renderCapitalMora();
   renderComplianceRate();
   renderRiskDistribution();
+  renderEstimatedGainTotal();
+}
+
+function calcEstimatedGain(p){
+  if(!p.expectedReturn) return null;
+  let days = 365;
+  let isFullYear = true;
+  if(p.due){
+    const today = new Date(); today.setHours(0,0,0,0);
+    const dueDate = new Date(p.due + 'T00:00:00');
+    const diffDays = Math.round((dueDate - today) / (1000*60*60*24));
+    days = Math.max(diffDays, 0);
+    isFullYear = false;
+  }
+  const gain = p.amount * (p.expectedReturn/100) * (days/365);
+  return { gain, days, isFullYear };
 }
 
 function renderLedger(){
@@ -800,6 +821,12 @@ function renderLedger(){
       <div><span class="tag" style="color:${meta.color};background:${meta.bg};">${meta.label}</span></div>
       <div class="amount">${fmtMoney(p.amount, p.currency)}</div>
       <div class="return-val">${p.expectedReturn ? p.expectedReturn + '% anual' : '—'}</div>
+      <div class="return-val" style="color:var(--green);">${(() => {
+        const est = calcEstimatedGain(p);
+        if(!est) return '—';
+        const symbol = p.currency === 'USD' ? '$' : 'S/';
+        return `+${symbol} ${est.gain.toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2})}${est.isFullYear ? ' <span style="color:var(--text-faint);font-size:10px;">(1 año)</span>' : ` <span style="color:var(--text-faint);font-size:10px;">(${est.days}d)</span>`}`;
+      })()}</div>
       <div><span class="tag ${p.risk}">${p.risk}</span></div>
       <div><span class="tag ${p.status}">${p.status}</span></div>
       <div class="row-actions">
@@ -1082,6 +1109,24 @@ function renderRiskDistribution(){
     const pct = (val/totalPEN)*100;
     return `<div class="item"><span class="dot" style="background:${meta.color};"></span>${meta.label} · ${pct.toFixed(0)}%</div>`;
   }).join('');
+}
+
+function renderEstimatedGainTotal(){
+  const el = document.getElementById('estimatedGainTotal');
+  const activePositions = positions.filter(p => p.status === 'activo');
+  if(activePositions.length === 0){ el.textContent = '—'; return; }
+
+  let totalGainPEN = 0;
+  let anyFullYear = false;
+  activePositions.forEach(p => {
+    const est = calcEstimatedGain(p);
+    if(est){
+      totalGainPEN += toPEN(est.gain, p.currency);
+      if(est.isFullYear) anyFullYear = true;
+    }
+  });
+
+  el.innerHTML = `${fmtPEN(totalGainPEN)}${anyFullYear ? '<small> · incluye estimados a 1 año</small>' : '<small> · a sus vencimientos</small>'}`;
 }
 
 function renderDiversificationScore(){
