@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mi Cartera</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg:#12151c;
+  --surface:#1b212c;
+  --surface-2:#232a37;
+  --line:#2c3341;
+  --gold:#c9a24b;
+  --gold-dim:#8a743a;
+  --green:#4e9a6b;
+  --red:#c1594b;
+  --amber:#c98a4b;
+  --blue:#5a8fa8;
+  --purple:#7a8fc9;
+  --text:#edeae2;
+  --text-dim:#9098a8;
+  --text-faint:#5c6473;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  padding:32px 20px 80px;
+}
+.wrap{max-width:960px;margin:0 auto;}
+h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
+
+.masthead{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:22px;flex-wrap:wrap;gap:16px;
+  border-bottom:1px solid var(--line);padding-bottom:20px;
+}
+.masthead .eyebrow{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:6px;
+}
+.masthead h1{font-size:30px;font-weight:600;color:var(--text);}
+.rate-box{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-dim);
+  display:flex;align-items:center;gap:6px;
+}
+.rate-box input{
+  width:64px;background:var(--surface-2);border:1px solid var(--line);
+  color:var(--gold);border-radius:4px;padding:4px 6px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;
+}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;border-bottom:1px solid var(--line);}
+.tab-btn{
+  font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;
+  background:none;border:none;color:var(--text-faint);
+  padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;
+  margin-bottom:-1px;
+}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-badge{
+  display:inline-block;background:var(--red);color:#fff;font-family:'IBM Plex Mono',monospace;
+  font-size:10px;padding:1px 6px;border-radius:9px;margin-left:4px;vertical-align:middle;
+}
+.tab-badge:empty{display:none;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.status-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-faint);text-align:center;padding:10px;}
+
+/* Cards / totals */
+.totals-row{display:flex;gap:20px;margin-bottom:22px;flex-wrap:wrap;}
+.total-card{flex:1;min-width:170px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px 16px;}
+.total-card .label{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:6px;}
+.total-card .value{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:500;color:var(--text);}
+.total-card .value small{font-size:12px;color:var(--text-dim);}
+
+/* Stripe */
+.stripe-wrap{margin-bottom:10px;}
+.stripe-label{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-faint);margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;}
+.stripe{display:flex;height:30px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:var(--surface);}
+.stripe .seg{height:100%;transition:width .4s ease;min-width:0;}
+.stripe .seg:not(:last-child){border-right:1px solid rgba(0,0,0,.25);}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12px;color:var(--text-dim);}
+.legend .item{display:flex;align-items:center;gap:6px;}
+.legend .dot{width:9px;height:9px;border-radius:2px;}
+
+.section-block{margin-bottom:30px;}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.section-head h2{font-size:18px;font-weight:600;}
+.section-desc{font-size:12.5px;color:var(--text-faint);margin-top:-8px;margin-bottom:14px;}
+
+.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;background:var(--gold);color:#1a1408;border:none;padding:9px 16px;border-radius:6px;cursor:pointer;transition:filter .15s ease;}
+.btn:hover{filter:brightness(1.08);}
+.btn.secondary{background:transparent;border:1px solid var(--line);color:var(--text-dim);}
+.btn.danger{background:transparent;border:1px solid var(--red);color:var(--red);}
+.btn.small{padding:5px 10px;font-size:12px;}
+
+/* Alerts */
+.alert{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:12px 14px;border-radius:7px;margin-bottom:8px;
+  font-size:13px;border:1px solid var(--line);background:var(--surface);
+}
+.alert .dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.alert.warn .dot{background:var(--amber);}
+.alert.danger .dot{background:var(--red);}
+.alert.good .dot{background:var(--green);}
+.alert.info .dot{background:var(--blue);}
+.alert b{color:var(--text);}
+
+/* Ledger */
+.ledger{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);}
+.ledger-row{display:grid;grid-template-columns:1.7fr .9fr 1fr .8fr .7fr .8fr auto;gap:10px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);}
+.ledger-row:last-child{border-bottom:none;}
+.ledger-row.headrow{font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);padding:10px 16px;background:var(--surface-2);}
+.ledger-row .name{font-weight:600;color:var(--text);}
+.ledger-row .sub{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.ledger-row .amount{font-family:'IBM Plex Mono',monospace;font-size:14.5px;color:var(--text);}
+.tag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;border:1px solid currentColor;}
+.tag.bajo{color:var(--green);}
+.tag.medio{color:var(--amber);}
+.tag.alto{color:var(--red);}
+.tag.activo{color:var(--blue);}
+.tag.cobrado{color:var(--green);}
+.tag.atrasado{color:var(--red);}
+.return-val{font-family:'IBM Plex Mono',monospace;color:var(--gold);font-size:13px;}
+.row-actions{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;}
+.icon-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:12px;padding:4px 6px;border-radius:4px;white-space:nowrap;}
+.icon-btn:hover{color:var(--text);background:var(--surface-2);}
+
+.empty-state{padding:44px 20px;text-align:center;color:var(--text-faint);}
+.empty-state h3{color:var(--text-dim);font-size:15px;margin-bottom:6px;}
+
+/* Calendar list */
+.cal-list{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);}
+.cal-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13.5px;}
+.cal-row:last-child{border-bottom:none;}
+.cal-row .days{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 8px;border-radius:4px;}
+.cal-row .days.soon{background:rgba(193,89,75,.15);color:var(--red);}
+.cal-row .days.ok{background:rgba(78,154,107,.15);color:var(--green);}
+
+/* Activity log */
+.activity-list{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);}
+.activity-row{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px;}
+.activity-row:last-child{border-bottom:none;}
+.activity-row .ts{font-family:'IBM Plex Mono',monospace;color:var(--text-faint);font-size:11px;white-space:nowrap;padding-top:1px;}
+.activity-row .msg{color:var(--text-dim);}
+
+/* Advisor chat */
+.chat-wrap{
+  border:1px solid var(--line);border-radius:8px;background:var(--surface);
+  display:flex;flex-direction:column;height:520px;overflow:hidden;
+}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;}
+.chat-bubble{max-width:80%;padding:10px 14px;border-radius:10px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;}
+.chat-bubble.user{align-self:flex-end;background:var(--gold);color:#1a1408;border-bottom-right-radius:2px;}
+.chat-bubble.assistant{align-self:flex-start;background:var(--surface-2);color:var(--text);border-bottom-left-radius:2px;}
+.chat-bubble.assistant.loading{color:var(--text-faint);font-style:italic;}
+.chat-input-row{display:flex;gap:8px;padding:14px;border-top:1px solid var(--line);}
+.chat-input-row textarea{
+  flex:1;resize:none;background:var(--surface-2);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:10px 12px;font-family:'Inter',sans-serif;font-size:13.5px;min-height:42px;max-height:120px;
+}
+.chat-empty{color:var(--text-faint);font-size:13px;text-align:center;padding-top:40px;}
+
+/* Strategy tab */
+.strategy-card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px 20px;margin-bottom:16px;}
+.strategy-card h3{font-size:15.5px;margin-bottom:8px;color:var(--gold);}
+.strategy-card p, .strategy-card li{font-size:13.5px;color:var(--text-dim);line-height:1.6;}
+.strategy-card ul{margin:6px 0 0;padding-left:18px;}
+.profile-select{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.profile-btn{
+  flex:1;min-width:130px;background:var(--surface);border:1px solid var(--line);
+  color:var(--text-dim);border-radius:8px;padding:12px;cursor:pointer;text-align:left;
+}
+.profile-btn.active{border-color:var(--gold);color:var(--text);background:var(--surface-2);}
+.profile-btn .t{font-weight:600;font-size:13.5px;display:block;margin-bottom:2px;}
+.profile-btn .d{font-size:11.5px;color:var(--text-faint);}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:flex-start;justify-content:center;padding:6vh 20px;overflow-y:auto;z-index:50;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:26px;width:100%;max-width:500px;}
+.modal h3{font-size:18px;margin-bottom:18px;color:var(--text);}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--text);border-radius:6px;padding:9px 10px;font-family:'Inter',sans-serif;font-size:14px;}
+.field textarea{resize:vertical;min-height:50px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+.footer-note{margin-top:26px;font-size:12px;color:var(--text-faint);text-align:center;}
+
+@media (max-width:700px){
+  .ledger-row{grid-template-columns:1fr;gap:6px;}
+  .ledger-row.headrow{display:none;}
+  .row-actions{justify-content:flex-start;margin-top:6px;}
+  .two-col,.three-col{grid-template-columns:1fr;}
+  .cal-row{flex-direction:column;align-items:flex-start;gap:4px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="eyebrow">Cartera personal</div>
+      <h1>Mi Cartera</h1>
+    </div>
+    <div class="rate-box">
+      Tipo de cambio S//$
+      <input type="number" id="rateInput" step="0.01" value="3.75">
+    </div>
+  </div>
+
+  <div id="statusMsg" class="status-msg">Cargando tu cartera…</div>
+
+  <div id="mainContent" style="display:none;">
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="resumen">Resumen</button>
+      <button class="tab-btn" data-tab="posiciones">Posiciones</button>
+      <button class="tab-btn" data-tab="movimientos">Movimientos</button>
+      <button class="tab-btn" data-tab="oportunidades">Oportunidades <span class="tab-badge" id="badgeOportunidades"></span></button>
+      <button class="tab-btn" data-tab="metas">Metas</button>
+      <button class="tab-btn" data-tab="asesor">Asesor</button>
+      <button class="tab-btn" data-tab="estrategia">Estrategia</button>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="tab-panel active" id="tab-resumen">
+
+      <div id="opportunityBanner"></div>
+
+      <div class="totals-row">
+        <div class="total-card">
+          <div class="label">Valor total estimado</div>
+          <div class="value" id="totalAll">S/ 0<small> aprox.</small></div>
+        </div>
+        <div class="total-card">
+          <div class="label">Posiciones activas</div>
+          <div class="value" id="totalCount">0</div>
+        </div>
+        <div class="total-card">
+          <div class="label">Retorno esperado ponderado</div>
+          <div class="value" id="totalReturn">—</div>
+        </div>
+        <div class="total-card">
+          <div class="label">Mayor concentración individual</div>
+          <div class="value" id="maxConcentration">—</div>
+        </div>
+        <div class="total-card">
+          <div class="label">Salud de diversificación</div>
+          <div class="value" id="diversificationScore">—</div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head"><h2>Composición actual vs. objetivo</h2></div>
+        <div class="section-desc">El objetivo se calcula según el perfil que elijas en la pestaña Estrategia.</div>
+        <div class="stripe-wrap">
+          <div class="stripe-label"><span>Actual</span></div>
+          <div class="stripe" id="stripeCurrent"></div>
+        </div>
+        <div class="stripe-wrap">
+          <div class="stripe-label"><span>Objetivo (perfil: <span id="profileLabelInline">medio</span>)</span></div>
+          <div class="stripe" id="stripeTarget"></div>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head"><h2>Alertas y recomendaciones</h2></div>
+        <div id="alertsList"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head"><h2>Próximos vencimientos</h2></div>
+        <div class="cal-list" id="calList"></div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-head"><h2>Proyección de crecimiento</h2></div>
+        <div class="section-desc">Proyección simple usando tu retorno ponderado actual, compuesto año a año. No es una garantía — tu retorno real dependerá de cómo se comporten tus inversiones.</div>
+        <div class="strategy-card">
+          <div style="position:relative;height:220px;">
+            <canvas id="projectionChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- POSICIONES -->
+    <div class="tab-panel" id="tab-posiciones">
+      <div class="section-head">
+        <h2>Todas las posiciones</h2>
+        <div style="display:flex;gap:8px;">
+          <button class="btn secondary" id="resetBtn">Borrar todo</button>
+          <button class="btn" id="addBtn">+ Nueva posición</button>
+        </div>
+      </div>
+      <div class="ledger" id="ledger">
+        <div class="ledger-row headrow">
+          <div>Nombre / plataforma</div>
+          <div>Categoría</div>
+          <div>Monto</div>
+          <div>Retorno</div>
+          <div>Riesgo</div>
+          <div>Estado</div>
+          <div></div>
+        </div>
+        <div id="ledgerRows"></div>
+      </div>
+    </div>
+
+    <!-- MOVIMIENTOS -->
+    <div class="tab-panel" id="tab-movimientos">
+      <div class="section-head">
+        <h2>Historial de movimientos</h2>
+        <button class="btn secondary small" id="clearLogBtn">Limpiar historial</button>
+      </div>
+      <div class="section-desc">Cada vez que agregas, editas, cobras o eliminas una posición, queda registrado aquí automáticamente.</div>
+      <div class="activity-list" id="activityList"></div>
+    </div>
+
+    <!-- OPORTUNIDADES -->
+    <div class="tab-panel" id="tab-oportunidades">
+      <div class="section-head"><h2>Evaluador de oportunidades</h2></div>
+      <div class="section-desc">Pega los datos de una oportunidad que veas en cualquier plataforma y te digo si calza con tu estrategia. Esto no analiza el mercado por ti — es un chequeo de reglas basado en tu perfil y tu cartera actual.</div>
+
+      <div class="strategy-card">
+        <div class="two-col">
+          <div class="field">
+            <label>Nombre / empresa deudora</label>
+            <input type="text" id="oName" placeholder="Ej. Win Telecom">
+          </div>
+          <div class="field">
+            <label>Categoría</label>
+            <select id="oCategory">
+              <option value="liquido">Líquido</option>
+              <option value="plazo_fijo">Plazo fijo</option>
+              <option value="factoring">Factoring</option>
+              <option value="etf">ETF / Bolsa</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+        </div>
+        <div class="three-col">
+          <div class="field">
+            <label>Monto que pondrías (S/)</label>
+            <input type="number" id="oAmount" step="0.01" placeholder="500">
+          </div>
+          <div class="field">
+            <label>Retorno anualizado ofrecido (%)</label>
+            <input type="number" id="oReturn" step="0.1" placeholder="12">
+          </div>
+          <div class="field">
+            <label>Plazo (días)</label>
+            <input type="number" id="oDays" placeholder="60">
+          </div>
+        </div>
+        <div class="field">
+          <label>Sector (opcional, relevante para factoring)</label>
+          <input type="text" id="oSector" placeholder="Ej. minería, retail, telecom">
+        </div>
+        <div class="modal-actions" style="justify-content:flex-start;">
+          <button class="btn" id="evalBtn">Evaluar oportunidad</button>
+        </div>
+      </div>
+
+      <div id="opportunityResult"></div>
+
+      <div class="section-block" style="margin-top:28px;">
+        <div class="section-head">
+          <h2>Pendientes por revisar</h2>
+          <button class="btn secondary small" id="clearWatchlistBtn">Vaciar lista</button>
+        </div>
+        <div class="section-desc">Cada vez que evalúas algo con resultado 🟡 o 🔴, se guarda aquí para que la revises después con calma.</div>
+        <div class="activity-list" id="watchlistList"></div>
+      </div>
+    </div>
+
+    <!-- METAS -->
+    <div class="tab-panel" id="tab-metas">
+      <div class="section-head">
+        <h2>Metas de ahorro</h2>
+        <button class="btn" id="addGoalBtn">+ Nueva meta</button>
+      </div>
+      <div class="section-desc">Define un monto objetivo y una fecha. La app calcula tu progreso usando el valor total actual de tu cartera.</div>
+      <div id="goalsList"></div>
+
+      <div class="section-block" style="margin-top:30px;">
+        <div class="section-head">
+          <h2>Respaldo de datos</h2>
+        </div>
+        <div class="section-desc">Descarga toda tu información (posiciones, metas, movimientos) en un archivo, o restáurala si ya tienes uno guardado.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn secondary" id="exportBtn">Descargar respaldo (JSON)</button>
+          <label class="btn secondary" style="cursor:pointer;">
+            Restaurar desde archivo
+            <input type="file" id="importInput" accept="application/json" style="display:none;">
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASESOR -->
+    <div class="tab-panel" id="tab-asesor">
+      <div class="section-head"><h2>Asesor de inversiones</h2></div>
+      <div class="section-desc">Conversa con un asistente que conoce el contexto de tu cartera (perfil, posiciones, totales). Es información educativa general, no asesoría financiera personalizada certificada.</div>
+      <div id="apiKeyBox" class="strategy-card" style="display:none;">
+        <h3>Clave de API de Anthropic requerida</h3>
+        <p>Esta versión corre fuera de Claude.ai, así que necesitas tu propia clave de API para que el asesor funcione. Se guarda solo en tu navegador (localStorage), nunca se sube a GitHub ni se comparte. Consíguela en <span style="color:var(--gold);">console.anthropic.com</span>.</p>
+        <div class="field" style="margin-top:10px;">
+          <label>Tu clave de API (empieza con sk-ant-...)</label>
+          <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+        </div>
+        <button class="btn small" id="saveApiKeyBtn">Guardar clave</button>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-empty">Pregúntale algo, por ejemplo: "¿Cómo ves mi diversificación?" o "¿Qué opinas de agregar más ETFs?"</div>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" placeholder="Escribe tu pregunta..." rows="1"></textarea>
+          <button class="btn" id="chatSendBtn">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTRATEGIA -->
+    <div class="tab-panel" id="tab-estrategia">
+      <div class="section-head"><h2>Tu perfil de inversión</h2></div>
+      <div class="section-desc">Esto define tu reparto objetivo y las alertas de diversificación.</div>
+      <div class="profile-select" id="profileSelect">
+        <button class="profile-btn" data-profile="bajo"><span class="t">Bajo riesgo</span><span class="d">Prioriza seguridad y liquidez</span></button>
+        <button class="profile-btn" data-profile="medio"><span class="t">Riesgo medio</span><span class="d">Balance entre seguridad y crecimiento</span></button>
+        <button class="profile-btn" data-profile="alto"><span class="t">Riesgo alto</span><span class="d">Prioriza crecimiento a largo plazo</span></button>
+      </div>
+
+      <div class="strategy-card" id="targetCard">
+        <h3>Reparto objetivo sugerido</h3>
+        <p id="targetDescription"></p>
+      </div>
+
+      <div class="strategy-card">
+        <h3>Principios generales que no cambian con el perfil</h3>
+        <ul>
+          <li>Nunca pongas todo tu capital en una sola posición o factura — diversifica entre varias empresas, sectores y plazos.</li>
+          <li>Mantén siempre un colchón líquido para imprevistos, sin importar qué tan cómodo estés con el riesgo.</li>
+          <li>El dinero que necesitas en menos de un año no debería estar en bolsa (ETFs) ni en instrumentos sin garantía de capital.</li>
+          <li>Verifica siempre que las plataformas de factoring estén registradas en CAVALI y ante la SBS antes de invertir.</li>
+          <li>Las rentabilidades pasadas o proyectadas nunca son garantía de resultados futuros.</li>
+        </ul>
+      </div>
+
+      <div class="strategy-card">
+        <h3>Checklist antes de agregar una nueva posición</h3>
+        <ul>
+          <li>¿Esta posición me deja demasiado concentrado en una sola categoría o empresa?</li>
+          <li>¿El plazo de vencimiento es compatible con cuándo podría necesitar este dinero?</li>
+          <li>¿Verifiqué el registro regulatorio de la plataforma o entidad?</li>
+          <li>¿El retorno ofrecido es razonable para el riesgo, o parece "demasiado bueno para ser verdad"?</li>
+        </ul>
+      </div>
+
+      <div class="strategy-card">
+        <p style="font-size:12px;color:var(--text-faint);">Esta sección es información educativa general, no asesoría financiera personalizada. Antes de tomar decisiones de inversión importantes, considera consultar con un asesor financiero certificado.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer-note">Los datos se guardan solo en tu cuenta y son privados.</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3 id="modalTitle">Nueva posición</h3>
+    <div class="field">
+      <label>Nombre / plataforma</label>
+      <input type="text" id="fName" placeholder="Ej. Prestamype - Win Telecom">
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Categoría</label>
+        <select id="fCategory">
+          <option value="liquido">Líquido (ahorro/corto plazo)</option>
+          <option value="plazo_fijo">Plazo fijo</option>
+          <option value="factoring">Factoring</option>
+          <option value="etf">ETF / Bolsa</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Riesgo</label>
+        <select id="fRisk">
+          <option value="bajo">Bajo</option>
+          <option value="medio">Medio</option>
+          <option value="alto">Alto</option>
+        </select>
+      </div>
+    </div>
+    <div class="three-col">
+      <div class="field">
+        <label>Moneda</label>
+        <select id="fCurrency">
+          <option value="PEN">Soles (S/)</option>
+          <option value="USD">Dólares ($)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Monto</label>
+        <input type="number" id="fAmount" step="0.01" placeholder="500">
+      </div>
+      <div class="field">
+        <label>Retorno anual (%)</label>
+        <input type="number" id="fReturn" step="0.1" placeholder="10">
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Sector / rubro (opcional)</label>
+        <input type="text" id="fSector" placeholder="Ej. minería, retail, telecom">
+      </div>
+      <div class="field">
+        <label>Fecha de vencimiento (opcional)</label>
+        <input type="date" id="fDue">
+      </div>
+    </div>
+    <div class="field">
+      <label>Estado</label>
+      <select id="fStatus">
+        <option value="activo">Activo</option>
+        <option value="cobrado">Cobrado</option>
+        <option value="atrasado">Atrasado</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Notas (opcional)</label>
+      <textarea id="fNotes" placeholder="Ej. plataforma verificada en CAVALI..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelBtn">Cancelar</button>
+      <button class="btn" id="saveBtn">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="goalOverlay">
+  <div class="modal">
+    <h3>Nueva meta de ahorro</h3>
+    <div class="field">
+      <label>Nombre de la meta</label>
+      <input type="text" id="gName" placeholder="Ej. Fondo de emergencia">
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Monto objetivo (S/)</label>
+        <input type="number" id="gTarget" step="0.01" placeholder="10000">
+      </div>
+      <div class="field">
+        <label>Fecha objetivo (opcional)</label>
+        <input type="date" id="gDate">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="cancelGoalBtn">Cancelar</button>
+      <button class="btn" id="saveGoalBtn">Guardar meta</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Polyfill: if window.storage isn't provided by the host (e.g. running outside Claude.ai,
+// like on GitHub Pages), fall back to the browser's own localStorage so the app still works.
+if(typeof window.storage === 'undefined'){
+  window.storage = {
+    async get(key, shared){
+      const raw = localStorage.getItem('mi_cartera:' + key);
+      if(raw === null) throw new Error('not found');
+      return { key, value: raw, shared: !!shared };
+    },
+    async set(key, value, shared){
+      localStorage.setItem('mi_cartera:' + key, value);
+      return { key, value, shared: !!shared };
+    },
+    async delete(key, shared){
+      localStorage.removeItem('mi_cartera:' + key);
+      return { key, deleted: true, shared: !!shared };
+    },
+    async list(prefix, shared){
+      const keys = Object.keys(localStorage)
+        .filter(k => k.startsWith('mi_cartera:' + (prefix||'')))
+        .map(k => k.replace('mi_cartera:', ''));
+      return { keys, prefix, shared: !!shared };
+    }
+  };
+}
+
+const POS_KEY = 'positions';
+const RATE_KEY = 'exchange_rate';
+const PROFILE_KEY = 'profile';
+const LOG_KEY = 'activity_log';
+const WATCHLIST_KEY = 'watchlist';
+const GOALS_KEY = 'goals';
+
+let positions = [];
+let activityLog = [];
+let watchlist = [];
+let goals = [];
+let editingId = null;
+let exchangeRate = 3.75;
+let riskProfile = 'medio';
+
+const CATEGORY_META = {
+  liquido:   { label: 'Líquido',     color: 'var(--blue)' },
+  plazo_fijo:{ label: 'Plazo fijo',  color: 'var(--purple)' },
+  factoring: { label: 'Factoring',   color: 'var(--amber)' },
+  etf:       { label: 'ETF / Bolsa', color: 'var(--gold)' },
+  otro:      { label: 'Otro',        color: 'var(--text-faint)' },
+};
+
+const TARGETS = {
+  bajo:  { liquido:40, plazo_fijo:30, factoring:20, etf:10 },
+  medio: { liquido:20, plazo_fijo:20, factoring:30, etf:30 },
+  alto:  { liquido:10, plazo_fijo:10, factoring:30, etf:50 },
+};
+
+const BENCHMARKS = {
+  liquido:    { min: 2,  max: 6,  label: '2%-6% anual' },
+  plazo_fijo: { min: 3,  max: 7,  label: '3%-7% anual' },
+  factoring:  { min: 8,  max: 22, label: '8%-22% anual' },
+  etf:        { min: -20, max: 30, label: 'variable, histórico ~8%-11% promedio a largo plazo' },
+  otro:       { min: 0,  max: 100, label: 'sin referencia definida' },
+};
+
+const PROFILE_TEXT = {
+  bajo: 'Con un perfil de bajo riesgo, priorizas seguridad y liquidez: 40% líquido, 30% plazo fijo, 20% factoring diversificado y 10% ETFs. Este reparto minimiza la volatilidad, a costa de un retorno esperado más modesto.',
+  medio: 'Con un perfil de riesgo medio, buscas equilibrio: 20% líquido, 20% plazo fijo, 30% factoring diversificado y 30% ETFs. Aceptas algo más de volatilidad a cambio de mejor retorno esperado en el largo plazo.',
+  alto: 'Con un perfil de riesgo alto, priorizas crecimiento: 10% líquido, 10% plazo fijo, 30% factoring y 50% ETFs. Esto implica mayor volatilidad y requiere un horizonte de tiempo largo (5-10+ años) para que tenga sentido.',
+};
+
+function uid(){ return 'p' + Date.now() + Math.random().toString(36).slice(2,8); }
+function toPEN(amount, currency){ return currency === 'USD' ? amount * exchangeRate : amount; }
+function fmtMoney(n, currency){
+  const symbol = currency === 'USD' ? '$' : 'S/';
+  return symbol + ' ' + n.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtPEN(n){ return 'S/ ' + n.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+function escapeHtml(str){ const div=document.createElement('div'); div.textContent=str; return div.innerHTML; }
+function formatDate(dateStr){ const d=new Date(dateStr+'T00:00:00'); return d.toLocaleDateString('es-PE',{day:'2-digit',month:'short',year:'numeric'}); }
+function nowStr(){ return new Date().toLocaleString('es-PE',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}); }
+
+async function logActivity(message){
+  activityLog.unshift({ ts: nowStr(), message });
+  activityLog = activityLog.slice(0, 200);
+  try{ await window.storage.set(LOG_KEY, JSON.stringify(activityLog), false); }catch(e){ console.error(e); }
+}
+
+async function loadData(){
+  const statusEl = document.getElementById('statusMsg');
+  try{
+    const rateResult = await window.storage.get(RATE_KEY, false).catch(() => null);
+    if(rateResult && rateResult.value){
+      exchangeRate = parseFloat(rateResult.value) || 3.75;
+      document.getElementById('rateInput').value = exchangeRate;
+    }
+  }catch(e){}
+
+  try{
+    const profResult = await window.storage.get(PROFILE_KEY, false).catch(() => null);
+    if(profResult && profResult.value){ riskProfile = profResult.value; }
+  }catch(e){}
+
+  try{
+    const result = await window.storage.get(POS_KEY, false).catch(() => null);
+    if(result && result.value){ positions = JSON.parse(result.value); }
+  }catch(e){ positions = []; }
+
+  try{
+    const logResult = await window.storage.get(LOG_KEY, false).catch(() => null);
+    if(logResult && logResult.value){ activityLog = JSON.parse(logResult.value); }
+  }catch(e){ activityLog = []; }
+
+  try{
+    const wlResult = await window.storage.get(WATCHLIST_KEY, false).catch(() => null);
+    if(wlResult && wlResult.value){ watchlist = JSON.parse(wlResult.value); }
+  }catch(e){ watchlist = []; }
+
+  try{
+    const goalsResult = await window.storage.get(GOALS_KEY, false).catch(() => null);
+    if(goalsResult && goalsResult.value){ goals = JSON.parse(goalsResult.value); }
+  }catch(e){ goals = []; }
+
+  statusEl.style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  setActiveProfileButton();
+  render();
+}
+
+async function savePositions(){
+  try{ await window.storage.set(POS_KEY, JSON.stringify(positions), false); }
+  catch(e){ console.error(e); alert('No se pudo guardar. Intenta de nuevo.'); }
+}
+async function saveRate(){ try{ await window.storage.set(RATE_KEY, String(exchangeRate), false); }catch(e){ console.error(e); } }
+async function saveProfile(){ try{ await window.storage.set(PROFILE_KEY, riskProfile, false); }catch(e){ console.error(e); } }
+
+function render(){
+  renderLedger();
+  renderTotals();
+  renderStripes();
+  renderAlerts();
+  renderCalendar();
+  renderActivity();
+  renderStrategyText();
+  renderOpportunityBanner();
+  renderWatchlist();
+  renderDiversificationScore();
+  renderProjectionChart();
+  renderGoals();
+  renderBadges();
+}
+
+function renderLedger(){
+  const rowsEl = document.getElementById('ledgerRows');
+  const ledgerEl = document.getElementById('ledger');
+  if(positions.length === 0){
+    ledgerEl.querySelector('.headrow').style.display = 'none';
+    rowsEl.innerHTML = `<div class="empty-state"><h3>Todavía no registraste posiciones</h3><p>Agrega tu primera inversión con "+ Nueva posición".</p></div>`;
+    return;
+  }
+  ledgerEl.querySelector('.headrow').style.display = 'grid';
+  rowsEl.innerHTML = positions.map(p => {
+    const meta = CATEGORY_META[p.category] || CATEGORY_META.otro;
+    return `
+    <div class="ledger-row" data-id="${p.id}">
+      <div>
+        <div class="name">${escapeHtml(p.name)}</div>
+        ${p.sector ? `<div class="sub">Sector: ${escapeHtml(p.sector)}</div>` : ''}
+        ${p.due ? `<div class="sub">Vence: ${formatDate(p.due)}</div>` : ''}
+      </div>
+      <div><span class="tag" style="color:${meta.color};border-color:${meta.color};">${meta.label}</span></div>
+      <div class="amount">${fmtMoney(p.amount, p.currency)}</div>
+      <div class="return-val">${p.expectedReturn ? p.expectedReturn + '% anual' : '—'}</div>
+      <div><span class="tag ${p.risk}">${p.risk}</span></div>
+      <div><span class="tag ${p.status}">${p.status}</span></div>
+      <div class="row-actions">
+        <button class="icon-btn" onclick="editPosition('${p.id}')">Editar</button>
+        <button class="icon-btn" onclick="deletePosition('${p.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTotals(){
+  const totalPEN = positions.reduce((sum,p) => sum + toPEN(p.amount, p.currency), 0);
+  document.getElementById('totalAll').innerHTML = `${fmtPEN(totalPEN)}<small> aprox.</small>`;
+  document.getElementById('totalCount').textContent = positions.length;
+
+  const weighted = positions.reduce((sum,p) => {
+    const val = toPEN(p.amount, p.currency);
+    return sum + (p.expectedReturn ? val * (p.expectedReturn/100) : 0);
+  }, 0);
+  document.getElementById('totalReturn').textContent = totalPEN > 0 ? ((weighted/totalPEN)*100).toFixed(2) + '% anual' : '—';
+
+  if(totalPEN > 0 && positions.length > 0){
+    const maxPos = positions.reduce((max,p) => toPEN(p.amount,p.currency) > toPEN(max.amount,max.currency) ? p : max, positions[0]);
+    const pct = (toPEN(maxPos.amount,maxPos.currency)/totalPEN)*100;
+    document.getElementById('maxConcentration').innerHTML = `${pct.toFixed(0)}%<small> · ${escapeHtml(maxPos.name)}</small>`;
+  } else {
+    document.getElementById('maxConcentration').textContent = '—';
+  }
+}
+
+function getCategoryBreakdown(){
+  const totalPEN = positions.reduce((sum,p) => sum + toPEN(p.amount, p.currency), 0);
+  const byCategory = {};
+  positions.forEach(p => { byCategory[p.category] = (byCategory[p.category]||0) + toPEN(p.amount,p.currency); });
+  return { totalPEN, byCategory };
+}
+
+function renderStripes(){
+  const { totalPEN, byCategory } = getCategoryBreakdown();
+  const stripeCurrent = document.getElementById('stripeCurrent');
+  const stripeTarget = document.getElementById('stripeTarget');
+  const legendEl = document.getElementById('legend');
+  document.getElementById('profileLabelInline').textContent = riskProfile;
+
+  if(totalPEN === 0){
+    stripeCurrent.innerHTML = `<div class="seg" style="width:100%;background:var(--surface-2);"></div>`;
+  } else {
+    stripeCurrent.innerHTML = Object.entries(byCategory).map(([cat,val]) => {
+      const meta = CATEGORY_META[cat] || CATEGORY_META.otro;
+      const pct = (val/totalPEN)*100;
+      return `<div class="seg" style="width:${pct}%;background:${meta.color};" title="${meta.label}: ${pct.toFixed(1)}%"></div>`;
+    }).join('');
+  }
+
+  const target = TARGETS[riskProfile];
+  stripeTarget.innerHTML = Object.entries(target).map(([cat,pct]) => {
+    const meta = CATEGORY_META[cat] || CATEGORY_META.otro;
+    return `<div class="seg" style="width:${pct}%;background:${meta.color};opacity:.55;" title="${meta.label}: ${pct}%"></div>`;
+  }).join('');
+
+  legendEl.innerHTML = Object.entries(CATEGORY_META).map(([cat,meta]) => {
+    return `<div class="item"><span class="dot" style="background:${meta.color};"></span>${meta.label}</div>`;
+  }).join('');
+}
+
+function renderAlerts(){
+  const alertsEl = document.getElementById('alertsList');
+  const { totalPEN, byCategory } = getCategoryBreakdown();
+  const alerts = [];
+
+  if(positions.length === 0){
+    alertsEl.innerHTML = `<div class="alert info"><span class="dot"></span><span>Agrega posiciones para empezar a ver alertas y recomendaciones personalizadas.</span></div>`;
+    return;
+  }
+
+  const target = TARGETS[riskProfile];
+  Object.keys(target).forEach(cat => {
+    const currentPct = totalPEN > 0 ? ((byCategory[cat]||0)/totalPEN)*100 : 0;
+    const diff = currentPct - target[cat];
+    if(Math.abs(diff) >= 15){
+      const meta = CATEGORY_META[cat];
+      if(diff > 0){
+        alerts.push({ type:'warn', html:`Estás <b>${diff.toFixed(0)} pts</b> por encima de tu objetivo en <b>${meta.label}</b> (${currentPct.toFixed(0)}% vs ${target[cat]}%).` });
+      } else {
+        alerts.push({ type:'info', html:`Estás <b>${Math.abs(diff).toFixed(0)} pts</b> por debajo de tu objetivo en <b>${meta.label}</b> (${currentPct.toFixed(0)}% vs ${target[cat]}%).` });
+      }
+    }
+  });
+
+  const liquidoPct = totalPEN > 0 ? ((byCategory.liquido||0)/totalPEN)*100 : 0;
+  if(liquidoPct < 10){
+    alerts.push({ type:'danger', html:`Tu colchón líquido es de solo <b>${liquidoPct.toFixed(0)}%</b>. Se recomienda mantener un mínimo disponible para imprevistos, sin importar tu perfil de riesgo.` });
+  }
+
+  if(totalPEN > 0){
+    const maxPos = positions.reduce((max,p) => toPEN(p.amount,p.currency) > toPEN(max.amount,max.currency) ? p : max, positions[0]);
+    const pct = (toPEN(maxPos.amount,maxPos.currency)/totalPEN)*100;
+    if(pct > 25){
+      alerts.push({ type:'warn', html:`<b>${escapeHtml(maxPos.name)}</b> concentra el <b>${pct.toFixed(0)}%</b> de tu cartera. Considera repartir en más posiciones para reducir el riesgo de una sola contraparte.` });
+    }
+  }
+
+  const factoringPositions = positions.filter(p => p.category === 'factoring');
+  if(factoringPositions.length >= 2){
+    const sectorTotals = {};
+    let facTotal = 0;
+    factoringPositions.forEach(p => {
+      const val = toPEN(p.amount,p.currency);
+      facTotal += val;
+      const sector = p.sector ? p.sector.trim().toLowerCase() : 'sin sector';
+      sectorTotals[sector] = (sectorTotals[sector]||0) + val;
+    });
+    const maxSector = Object.entries(sectorTotals).reduce((m,e) => e[1] > m[1] ? e : m, ['',0]);
+    if(facTotal > 0 && (maxSector[1]/facTotal)*100 > 60 && maxSector[0] !== 'sin sector'){
+      alerts.push({ type:'warn', html:`Dentro de factoring, el <b>${((maxSector[1]/facTotal)*100).toFixed(0)}%</b> está concentrado en el sector "<b>${escapeHtml(maxSector[0])}</b>". Diversificar sectores reduce el riesgo de impagos correlacionados.` });
+    }
+  }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  positions.forEach(p => {
+    if(p.due && p.status === 'activo'){
+      const dueDate = new Date(p.due + 'T00:00:00');
+      if(dueDate < today){
+        alerts.push({ type:'danger', html:`<b>${escapeHtml(p.name)}</b> venció el ${formatDate(p.due)} y sigue marcada como "activo". Revisa si ya deberías marcarla como cobrada o atrasada.` });
+      }
+    }
+  });
+
+  if(alerts.length === 0){
+    alerts.push({ type:'good', html:'Tu cartera está razonablemente alineada con tu perfil y sin concentraciones excesivas detectadas.' });
+  }
+
+  alertsEl.innerHTML = alerts.map(a => `<div class="alert ${a.type}"><span class="dot"></span><span>${a.html}</span></div>`).join('');
+}
+
+function renderCalendar(){
+  const calEl = document.getElementById('calList');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = positions
+    .filter(p => p.due && p.status === 'activo')
+    .map(p => ({ ...p, dueDate: new Date(p.due+'T00:00:00') }))
+    .sort((a,b) => a.dueDate - b.dueDate);
+
+  if(upcoming.length === 0){
+    calEl.innerHTML = `<div class="empty-state" style="padding:24px;"><p>No hay vencimientos pendientes registrados.</p></div>`;
+    return;
+  }
+
+  calEl.innerHTML = upcoming.map(p => {
+    const diffDays = Math.round((p.dueDate - today)/(1000*60*60*24));
+    const daysLabel = diffDays < 0 ? `Vencido hace ${Math.abs(diffDays)}d` : (diffDays === 0 ? 'Vence hoy' : `Faltan ${diffDays}d`);
+    const cls = diffDays <= 7 ? 'soon' : 'ok';
+    return `<div class="cal-row">
+      <div><b>${escapeHtml(p.name)}</b> · ${fmtMoney(p.amount,p.currency)}</div>
+      <div>
+        <span class="days ${cls}">${daysLabel}</span>
+        <span style="color:var(--text-faint);margin-left:8px;">${formatDate(p.due)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivity(){
+  const el = document.getElementById('activityList');
+  if(activityLog.length === 0){
+    el.innerHTML = `<div class="empty-state" style="padding:24px;"><p>Todavía no hay movimientos registrados.</p></div>`;
+    return;
+  }
+  el.innerHTML = activityLog.map(a => `<div class="activity-row"><div class="ts">${a.ts}</div><div class="msg">${escapeHtml(a.message)}</div></div>`).join('');
+}
+
+function renderOpportunityBanner(){
+  const bannerEl = document.getElementById('opportunityBanner');
+  const { totalPEN, byCategory } = getCategoryBreakdown();
+  if(totalPEN === 0){ bannerEl.innerHTML = ''; return; }
+
+  const target = TARGETS[riskProfile];
+  const liquidoPct = ((byCategory.liquido||0)/totalPEN)*100;
+  const excessPts = liquidoPct - target.liquido;
+
+  if(excessPts >= 10){
+    const excessAmount = (excessPts/100) * totalPEN;
+    bannerEl.innerHTML = `<div class="alert good" style="margin-bottom:20px;">
+      <span class="dot"></span>
+      <span><b>Es buen momento para invertir:</b> tienes aprox. ${fmtPEN(excessAmount)} de más en líquido respecto a tu objetivo (${liquidoPct.toFixed(0)}% vs ${target.liquido}%). Ve a la pestaña <b>Oportunidades</b> para evaluar dónde colocarlo.</span>
+    </div>`;
+  } else {
+    bannerEl.innerHTML = '';
+  }
+}
+
+function renderWatchlist(){
+  const el = document.getElementById('watchlistList');
+  if(watchlist.length === 0){
+    el.innerHTML = `<div class="empty-state" style="padding:24px;"><p>No tienes oportunidades pendientes por revisar.</p></div>`;
+    return;
+  }
+  el.innerHTML = watchlist.map(w => `
+    <div class="activity-row" style="justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div class="ts">${w.ts}</div>
+        <div class="msg"><span class="tag ${w.verdictClass}" style="margin-right:6px;">${w.verdictClass === 'danger' ? 'no recomendable' : 'revisar'}</span>${escapeHtml(w.name)} · ${fmtPEN(w.amount)} · ${w.offeredReturn}% anual</div>
+      </div>
+      <button class="icon-btn" onclick="removeFromWatchlist('${w.id}')">Quitar</button>
+    </div>`).join('');
+}
+
+async function removeFromWatchlist(id){
+  watchlist = watchlist.filter(w => w.id !== id);
+  renderWatchlist();
+  try{ await window.storage.set(WATCHLIST_KEY, JSON.stringify(watchlist), false); }catch(e){ console.error(e); }
+}
+window.removeFromWatchlist = removeFromWatchlist;
+
+function renderDiversificationScore(){
+  const el = document.getElementById('diversificationScore');
+  const { totalPEN } = getCategoryBreakdown();
+  if(totalPEN === 0 || positions.length === 0){ el.textContent = '—'; return; }
+
+  // Herfindahl-Hirschman Index over individual positions (weights sum to 1)
+  const hhi = positions.reduce((sum,p) => {
+    const w = toPEN(p.amount,p.currency) / totalPEN;
+    return sum + w*w;
+  }, 0);
+  // Normalize to a 0-100 "health" score: lower HHI (more spread out) = higher score
+  const score = Math.max(0, Math.round((1 - hhi) * 100));
+
+  let label;
+  if(score >= 80) label = 'Excelente';
+  else if(score >= 60) label = 'Buena';
+  else if(score >= 40) label = 'Regular';
+  else label = 'Baja';
+
+  el.innerHTML = `${score}/100<small> · ${label}</small>`;
+}
+
+let projectionChartInstance = null;
+function renderProjectionChart(){
+  const canvas = document.getElementById('projectionChart');
+  if(!canvas || typeof Chart === 'undefined') return;
+  const { totalPEN } = getCategoryBreakdown();
+
+  const weighted = positions.reduce((sum,p) => {
+    const val = toPEN(p.amount, p.currency);
+    return sum + (p.expectedReturn ? val * (p.expectedReturn/100) : 0);
+  }, 0);
+  const annualRate = totalPEN > 0 ? (weighted/totalPEN) : 0;
+
+  const years = Array.from({length: 11}, (_,i) => i);
+  const values = years.map(y => Math.round(totalPEN * Math.pow(1+annualRate, y)));
+
+  if(projectionChartInstance) projectionChartInstance.destroy();
+  if(totalPEN === 0){
+    canvas.parentElement.innerHTML = '<p style="color:var(--text-faint);font-size:13px;padding-top:80px;text-align:center;">Agrega posiciones para ver tu proyección.</p>';
+    return;
+  }
+  projectionChartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: years.map(y => 'Año ' + y),
+      datasets: [{
+        label: 'Valor proyectado',
+        data: values,
+        borderColor: '#c9a24b',
+        backgroundColor: 'rgba(201,162,75,0.12)',
+        fill: true,
+        tension: 0.25,
+        pointRadius: 2,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: (ctx) => 'S/ ' + ctx.parsed.y.toLocaleString('es-PE') } }
+      },
+      scales: {
+        y: { ticks: { color: '#9098a8', callback: (v) => 'S/' + v.toLocaleString('es-PE') }, grid: { color: 'rgba(44,51,65,0.6)' } },
+        x: { ticks: { color: '#9098a8' }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function renderGoals(){
+  const el = document.getElementById('goalsList');
+  const { totalPEN } = getCategoryBreakdown();
+  if(goals.length === 0){
+    el.innerHTML = `<div class="empty-state" style="padding:24px;"><p>Todavía no defines ninguna meta de ahorro.</p></div>`;
+    return;
+  }
+  el.innerHTML = goals.map(g => {
+    const pct = g.target > 0 ? Math.min(100, (totalPEN/g.target)*100) : 0;
+    let daysLeftText = '';
+    if(g.date){
+      const today = new Date(); today.setHours(0,0,0,0);
+      const dueDate = new Date(g.date+'T00:00:00');
+      const diffDays = Math.round((dueDate-today)/(1000*60*60*24));
+      daysLeftText = diffDays >= 0 ? ` · faltan ${diffDays}d (${formatDate(g.date)})` : ` · venció el ${formatDate(g.date)}`;
+    }
+    return `
+    <div class="strategy-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <h3 style="margin-bottom:0;">${escapeHtml(g.name)}</h3>
+        <button class="icon-btn" onclick="removeGoal('${g.id}')">Eliminar</button>
+      </div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-dim);margin-bottom:8px;">
+        ${fmtPEN(totalPEN)} de ${fmtPEN(g.target)} (${pct.toFixed(0)}%)${daysLeftText}
+      </div>
+      <div class="stripe" style="height:16px;">
+        <div class="seg" style="width:${pct}%;background:var(--gold);"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function removeGoal(id){
+  goals = goals.filter(g => g.id !== id);
+  renderGoals();
+  try{ await window.storage.set(GOALS_KEY, JSON.stringify(goals), false); }catch(e){ console.error(e); }
+  await logActivity('Eliminaste una meta de ahorro.');
+  renderActivity();
+}
+window.removeGoal = removeGoal;
+
+let chatHistory = [];
+let userApiKey = localStorage.getItem('mi_cartera:api_key') || '';
+
+document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if(!val){ alert('Ingresa una clave válida.'); return; }
+  userApiKey = val;
+  localStorage.setItem('mi_cartera:api_key', val);
+  document.getElementById('apiKeyBox').style.display = 'none';
+  alert('Clave guardada. Ya puedes usar el asesor.');
+});
+
+function buildPortfolioContext(){
+  const { totalPEN, byCategory } = getCategoryBreakdown();
+  const target = TARGETS[riskProfile];
+  const posLines = positions.map(p => `- ${p.name} (${CATEGORY_META[p.category].label}, riesgo ${p.risk}): ${fmtMoney(p.amount,p.currency)}, retorno esperado ${p.expectedReturn || 'no especificado'}%, estado ${p.status}${p.sector ? ', sector ' + p.sector : ''}`).join('\n');
+
+  return `Contexto de la cartera del usuario (información real, úsala para responder de forma específica y útil):
+Perfil de riesgo declarado: ${riskProfile}
+Valor total estimado: ${fmtPEN(totalPEN)}
+Reparto objetivo para este perfil: líquido ${target.liquido}%, plazo fijo ${target.plazo_fijo}%, factoring ${target.factoring}%, ETF ${target.etf}%
+Composición actual (S/): ${Object.entries(byCategory).map(([c,v]) => CATEGORY_META[c].label + ': ' + fmtPEN(v)).join(', ') || 'sin posiciones aún'}
+Posiciones registradas:
+${posLines || 'ninguna todavía'}
+
+El usuario está en Perú (usa soles como referencia). Responde en español, de forma concisa y práctica, como un asesor educativo (no eres un asesor financiero certificado, acláralo si es relevante). Pregunta del usuario:`;
+}
+
+function renderChatMessages(){
+  const el = document.getElementById('chatMessages');
+  if(chatHistory.length === 0){
+    el.innerHTML = `<div class="chat-empty">Pregúntale algo, por ejemplo: "¿Cómo ves mi diversificación?" o "¿Qué opinas de agregar más ETFs?"</div>`;
+    return;
+  }
+  el.innerHTML = chatHistory.map(m => `<div class="chat-bubble ${m.role}">${escapeHtml(m.content)}</div>`).join('');
+  el.scrollTop = el.scrollHeight;
+}
+
+async function callClaudeAPI(messages){
+  // First try: works automatically inside Claude.ai artifacts (key handled by the host).
+  try{
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages })
+    });
+    if(response.ok){
+      window.__claudeHostDetected = true;
+      return await response.json();
+    }
+    throw new Error('host-fetch-failed');
+  }catch(hostErr){
+    // Fallback: standalone deployment (e.g. GitHub Pages) — use the user's own API key.
+    if(!userApiKey){
+      document.getElementById('apiKeyBox').style.display = 'block';
+      throw new Error('Necesitas ingresar tu clave de API arriba para usar el asesor fuera de Claude.ai.');
+    }
+    const response2 = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": userApiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages })
+    });
+    if(!response2.ok){
+      const errBody = await response2.text();
+      throw new Error('Error de la API (' + response2.status + '): ' + errBody.slice(0,200));
+    }
+    return await response2.json();
+  }
+}
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const question = input.value.trim();
+  if(!question) return;
+  input.value = '';
+
+  chatHistory.push({ role: 'user', content: question });
+  renderChatMessages();
+
+  const el = document.getElementById('chatMessages');
+  const loadingBubble = document.createElement('div');
+  loadingBubble.className = 'chat-bubble assistant loading';
+  loadingBubble.textContent = 'Pensando…';
+  el.appendChild(loadingBubble);
+  el.scrollTop = el.scrollHeight;
+
+  try{
+    const apiMessages = [
+      { role: 'user', content: buildPortfolioContext() + ' ' + question }
+    ];
+    const priorTurns = chatHistory.slice(0, -1).slice(-6);
+    const fullMessages = [...priorTurns.map(m => ({role: m.role, content: m.content})), apiMessages[0]];
+
+    const data = await callClaudeAPI(fullMessages);
+    const textBlocks = (data.content || []).filter(b => b.type === 'text').map(b => b.text);
+    const answer = textBlocks.join('\n').trim() || 'No pude generar una respuesta. Intenta de nuevo.';
+
+    loadingBubble.remove();
+    chatHistory.push({ role: 'assistant', content: answer });
+    renderChatMessages();
+  }catch(err){
+    console.error(err);
+    loadingBubble.remove();
+    chatHistory.push({ role: 'assistant', content: err.message || 'Hubo un error al conectar con el asesor. Intenta de nuevo en un momento.' });
+    renderChatMessages();
+  }
+}
+
+document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendChatMessage();
+  }
+});
+
+function renderBadges(){
+  const badgeEl = document.getElementById('badgeOportunidades');
+  badgeEl.textContent = watchlist.length > 0 ? watchlist.length : '';
+}
+
+function renderStrategyText(){
+  document.getElementById('targetDescription').textContent = PROFILE_TEXT[riskProfile];
+}
+
+function setActiveProfileButton(){
+  document.querySelectorAll('.profile-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.profile === riskProfile);
+  });
+}
+
+/* Tabs */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* Profile buttons */
+document.querySelectorAll('.profile-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    riskProfile = btn.dataset.profile;
+    setActiveProfileButton();
+    render();
+    await saveProfile();
+    await logActivity(`Perfil de riesgo cambiado a "${riskProfile}".`);
+    renderActivity();
+  });
+});
+
+/* Modal open/close */
+function openModal(position){
+  editingId = position ? position.id : null;
+  document.getElementById('modalTitle').textContent = position ? 'Editar posición' : 'Nueva posición';
+  document.getElementById('fName').value = position ? position.name : '';
+  document.getElementById('fCategory').value = position ? position.category : 'liquido';
+  document.getElementById('fRisk').value = position ? position.risk : 'bajo';
+  document.getElementById('fCurrency').value = position ? position.currency : 'PEN';
+  document.getElementById('fAmount').value = position ? position.amount : '';
+  document.getElementById('fReturn').value = position ? position.expectedReturn : '';
+  document.getElementById('fSector').value = position ? (position.sector || '') : '';
+  document.getElementById('fDue').value = position ? (position.due || '') : '';
+  document.getElementById('fStatus').value = position ? position.status : 'activo';
+  document.getElementById('fNotes').value = position ? (position.notes || '') : '';
+  document.getElementById('overlay').classList.add('open');
+}
+function closeModal(){ document.getElementById('overlay').classList.remove('open'); editingId = null; }
+
+function editPosition(id){ const p = positions.find(x => x.id === id); if(p) openModal(p); }
+
+async function deletePosition(id){
+  const p = positions.find(x => x.id === id);
+  if(!confirm('¿Eliminar esta posición?')) return;
+  positions = positions.filter(x => x.id !== id);
+  render();
+  await savePositions();
+  if(p) await logActivity(`Eliminaste la posición "${p.name}".`);
+  renderActivity();
+}
+window.editPosition = editPosition;
+window.deletePosition = deletePosition;
+
+document.getElementById('addBtn').addEventListener('click', () => openModal(null));
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+document.getElementById('overlay').addEventListener('click', (e) => { if(e.target.id === 'overlay') closeModal(); });
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('fName').value.trim();
+  const amount = parseFloat(document.getElementById('fAmount').value);
+  if(!name || isNaN(amount) || amount <= 0){
+    alert('Ingresa al menos un nombre y un monto válido.');
+    return;
+  }
+  const data = {
+    name,
+    category: document.getElementById('fCategory').value,
+    risk: document.getElementById('fRisk').value,
+    currency: document.getElementById('fCurrency').value,
+    amount,
+    expectedReturn: parseFloat(document.getElementById('fReturn').value) || null,
+    sector: document.getElementById('fSector').value.trim() || null,
+    due: document.getElementById('fDue').value || null,
+    status: document.getElementById('fStatus').value,
+    notes: document.getElementById('fNotes').value.trim() || null,
+  };
+
+  let logMsg;
+  if(editingId){
+    const idx = positions.findIndex(p => p.id === editingId);
+    if(idx > -1) positions[idx] = { ...positions[idx], ...data };
+    logMsg = `Editaste la posición "${name}".`;
+  } else {
+    positions.push({ id: uid(), createdAt: new Date().toISOString(), ...data });
+    logMsg = `Agregaste una nueva posición: "${name}" (${fmtMoney(amount, data.currency)}).`;
+  }
+
+  closeModal();
+  render();
+  await savePositions();
+  await logActivity(logMsg);
+  renderActivity();
+});
+
+document.getElementById('resetBtn').addEventListener('click', async () => {
+  if(!confirm('¿Seguro que quieres borrar todas tus posiciones? Esta acción no se puede deshacer.')) return;
+  positions = [];
+  render();
+  await savePositions();
+  await logActivity('Borraste todas las posiciones de la cartera.');
+  renderActivity();
+});
+
+document.getElementById('clearLogBtn').addEventListener('click', async () => {
+  if(!confirm('¿Borrar el historial de movimientos?')) return;
+  activityLog = [];
+  try{ await window.storage.set(LOG_KEY, JSON.stringify(activityLog), false); }catch(e){}
+  renderActivity();
+});
+
+document.getElementById('rateInput').addEventListener('change', async (e) => {
+  const val = parseFloat(e.target.value);
+  if(!isNaN(val) && val > 0){
+    exchangeRate = val;
+    render();
+    await saveRate();
+  }
+});
+
+document.getElementById('evalBtn').addEventListener('click', async () => {
+  const name = document.getElementById('oName').value.trim() || 'Esta oportunidad';
+  const category = document.getElementById('oCategory').value;
+  const amount = parseFloat(document.getElementById('oAmount').value);
+  const offeredReturn = parseFloat(document.getElementById('oReturn').value);
+  const days = parseFloat(document.getElementById('oDays').value);
+  const sector = document.getElementById('oSector').value.trim();
+
+  if(isNaN(amount) || amount <= 0 || isNaN(offeredReturn)){
+    alert('Ingresa al menos un monto y un retorno ofrecido válidos.');
+    return;
+  }
+
+  const reasons = [];
+  let score = 0; // positive = good signal, negative = warning
+
+  const { totalPEN, byCategory } = getCategoryBreakdown();
+  const bench = BENCHMARKS[category];
+
+  // 1. Return vs benchmark
+  if(category !== 'etf'){
+    if(offeredReturn > bench.max * 1.3){
+      reasons.push({ type:'danger', text:`El retorno ofrecido (${offeredReturn}%) está muy por encima del rango típico para ${CATEGORY_META[category].label} (${bench.label}). Un retorno "demasiado bueno" suele ser señal de mayor riesgo oculto o posible fraude.` });
+      score -= 2;
+    } else if(offeredReturn < bench.min){
+      reasons.push({ type:'warn', text:`El retorno ofrecido (${offeredReturn}%) está por debajo del rango típico (${bench.label}). Puede no compensar el riesgo frente a otras alternativas más seguras.` });
+      score -= 1;
+    } else {
+      reasons.push({ type:'good', text:`El retorno ofrecido (${offeredReturn}%) está dentro del rango típico para esta categoría (${bench.label}).` });
+      score += 1;
+    }
+  } else {
+    reasons.push({ type:'info', text:`Para ETFs no hay una tasa "ofrecida" — el ${offeredReturn}% que ingresaste sería una proyección, no una garantía. Recuerda que el rango histórico (${bench.label}) incluye años negativos.` });
+  }
+
+  // 2. Concentration if added
+  const newTotal = totalPEN + amount;
+  const pctOfPortfolio = (amount / newTotal) * 100;
+  if(pctOfPortfolio > 25){
+    reasons.push({ type:'danger', text:`Si inviertes ${fmtPEN(amount)}, esta única posición representaría el ${pctOfPortfolio.toFixed(0)}% de tu cartera total — por encima del 25% recomendado como máximo por posición.` });
+    score -= 2;
+  } else {
+    reasons.push({ type:'good', text:`Esta posición representaría el ${pctOfPortfolio.toFixed(0)}% de tu cartera total, dentro de un rango razonable de concentración.` });
+    score += 1;
+  }
+
+  // 3. Category gap vs target
+  const target = TARGETS[riskProfile] || {};
+  if(target[category] !== undefined){
+    const currentCatPct = totalPEN > 0 ? ((byCategory[category]||0)/totalPEN)*100 : 0;
+    const gap = target[category] - currentCatPct;
+    if(gap > 5){
+      reasons.push({ type:'good', text:`Actualmente estás por debajo de tu objetivo en ${CATEGORY_META[category].label} (${currentCatPct.toFixed(0)}% vs ${target[category]}%), así que esta oportunidad ayudaría a acercarte a tu estrategia.` });
+      score += 1;
+    } else if(gap < -5){
+      reasons.push({ type:'warn', text:`Ya estás por encima de tu objetivo en ${CATEGORY_META[category].label} (${currentCatPct.toFixed(0)}% vs ${target[category]}%). Agregar más aquí te alejaría de tu estrategia.` });
+      score -= 1;
+    }
+  }
+
+  // 4. Sector concentration for factoring
+  if(category === 'factoring' && sector){
+    const sectorLower = sector.toLowerCase();
+    const factoringPositions = positions.filter(p => p.category === 'factoring');
+    const facTotal = factoringPositions.reduce((s,p) => s + toPEN(p.amount,p.currency), 0) + amount;
+    const sectorTotal = factoringPositions.filter(p => (p.sector||'').toLowerCase() === sectorLower).reduce((s,p) => s + toPEN(p.amount,p.currency), 0) + amount;
+    const sectorPct = facTotal > 0 ? (sectorTotal/facTotal)*100 : 0;
+    if(sectorPct > 60){
+      reasons.push({ type:'warn', text:`Con esta operación, el sector "${sector}" concentraría el ${sectorPct.toFixed(0)}% de tu factoring. Buscar otro sector reduciría el riesgo de impagos correlacionados.` });
+      score -= 1;
+    }
+  }
+
+  // 5. Term vs horizon note
+  if(!isNaN(days) && days > 0){
+    if(category === 'etf' && days < 365){
+      reasons.push({ type:'warn', text:`Estás pensando en un ETF con horizonte de ${days} días. La renta variable funciona mejor con horizontes de varios años; en menos de un año el resultado es prácticamente impredecible.` });
+      score -= 1;
+    }
+  }
+
+  let verdict, verdictClass;
+  if(score >= 2){ verdict = '🟢 Parece una oportunidad razonable según tu estrategia'; verdictClass = 'good'; }
+  else if(score <= -2){ verdict = '🔴 No recomendable según tu estrategia actual'; verdictClass = 'danger'; }
+  else { verdict = '🟡 Revisar con cuidado antes de decidir'; verdictClass = 'warn'; }
+
+  if(verdictClass === 'danger' || verdictClass === 'warn'){
+    watchlist.unshift({
+      id: uid(),
+      ts: nowStr(),
+      name,
+      amount,
+      offeredReturn,
+      verdictClass,
+    });
+    watchlist = watchlist.slice(0, 100);
+    try{ await window.storage.set(WATCHLIST_KEY, JSON.stringify(watchlist), false); }catch(e){ console.error(e); }
+    renderWatchlist();
+  }
+
+  const resultEl = document.getElementById('opportunityResult');
+  resultEl.innerHTML = `
+    <div class="strategy-card">
+      <h3>${verdict}</h3>
+      <p style="color:var(--text);margin-bottom:10px;"><b>${escapeHtml(name)}</b> · ${fmtPEN(amount)} · ${offeredReturn}% anual${!isNaN(days) ? ' · ' + days + ' días' : ''}</p>
+      ${reasons.map(r => `<div class="alert ${r.type}" style="margin-bottom:6px;"><span class="dot"></span><span>${r.text}</span></div>`).join('')}
+      <p style="font-size:11.5px;color:var(--text-faint);margin-top:10px;">Este resultado es un chequeo de reglas basado en tu cartera y perfil, no una recomendación de inversión ni garantía de resultados.</p>
+    </div>`;
+
+  await logActivity(`Evaluaste la oportunidad "${name}" (${fmtPEN(amount)}, ${offeredReturn}% anual) → resultado: ${verdict.replace(/^[🟢🔴🟡]\s*/,'')}.`);
+  renderActivity();
+});
+
+document.getElementById('clearWatchlistBtn').addEventListener('click', async () => {
+  if(!confirm('¿Vaciar la lista de pendientes por revisar?')) return;
+  watchlist = [];
+  try{ await window.storage.set(WATCHLIST_KEY, JSON.stringify(watchlist), false); }catch(e){}
+  renderWatchlist();
+});
+
+document.getElementById('addGoalBtn').addEventListener('click', () => {
+  document.getElementById('gName').value = '';
+  document.getElementById('gTarget').value = '';
+  document.getElementById('gDate').value = '';
+  document.getElementById('goalOverlay').classList.add('open');
+});
+document.getElementById('cancelGoalBtn').addEventListener('click', () => {
+  document.getElementById('goalOverlay').classList.remove('open');
+});
+document.getElementById('goalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'goalOverlay') document.getElementById('goalOverlay').classList.remove('open');
+});
+document.getElementById('saveGoalBtn').addEventListener('click', async () => {
+  const name = document.getElementById('gName').value.trim();
+  const target = parseFloat(document.getElementById('gTarget').value);
+  const date = document.getElementById('gDate').value || null;
+  if(!name || isNaN(target) || target <= 0){
+    alert('Ingresa un nombre y un monto objetivo válido.');
+    return;
+  }
+  goals.push({ id: uid(), name, target, date });
+  document.getElementById('goalOverlay').classList.remove('open');
+  renderGoals();
+  try{ await window.storage.set(GOALS_KEY, JSON.stringify(goals), false); }catch(e){ console.error(e); }
+  await logActivity(`Creaste la meta "${name}" (objetivo: ${fmtPEN(target)}).`);
+  renderActivity();
+});
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const backup = { positions, goals, watchlist, activityLog, exchangeRate, riskProfile, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mi_cartera_respaldo_' + new Date().toISOString().slice(0,10) + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importInput').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!confirm('Esto reemplazará tus datos actuales con los del archivo. ¿Continuar?')) { e.target.value=''; return; }
+    positions = data.positions || [];
+    goals = data.goals || [];
+    watchlist = data.watchlist || [];
+    activityLog = data.activityLog || [];
+    exchangeRate = data.exchangeRate || 3.75;
+    riskProfile = data.riskProfile || 'medio';
+    document.getElementById('rateInput').value = exchangeRate;
+    setActiveProfileButton();
+    await savePositions();
+    await window.storage.set(GOALS_KEY, JSON.stringify(goals), false);
+    await window.storage.set(WATCHLIST_KEY, JSON.stringify(watchlist), false);
+    await window.storage.set(LOG_KEY, JSON.stringify(activityLog), false);
+    await saveRate();
+    await saveProfile();
+    render();
+    await logActivity('Restauraste la cartera desde un archivo de respaldo.');
+    renderActivity();
+    alert('Datos restaurados correctamente.');
+  }catch(err){
+    console.error(err);
+    alert('No se pudo leer el archivo. Verifica que sea un respaldo válido.');
+  }
+  e.target.value = '';
+});
+
+loadData();
+</script>
+</body>
+</html>
