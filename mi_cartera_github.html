@@ -416,7 +416,9 @@ h1,h2,h3{font-family:'Fraunces',serif;margin:0;}
     <!-- ASESOR -->
     <div class="tab-panel" id="tab-asesor">
       <div class="section-head"><h2>Asesor de inversiones</h2></div>
-      <div class="section-desc">Conversa con un asistente que conoce el contexto de tu cartera (perfil, posiciones, totales). Es información educativa general, no asesoría financiera personalizada certificada.</div>
+      <div class="section-desc">Conversa con un asistente que conoce el contexto de tu cartera (perfil, posiciones, totales). Es información educativa general, no asesoría financiera personalizada certificada.
+        <button class="icon-btn" id="toggleApiKeyBtn" style="margin-left:6px;">· Cambiar clave de API</button>
+      </div>
       <div id="apiKeyBox" class="strategy-card" style="display:none;">
         <h3>Clave de API de Anthropic requerida</h3>
         <p>Esta versión corre fuera de Claude.ai, así que necesitas tu propia clave de API para que el asesor funcione. Se guarda solo en tu navegador (localStorage), nunca se sube a GitHub ni se comparte. Consíguela en <span style="color:var(--gold);">console.anthropic.com</span>.</p>
@@ -1082,6 +1084,16 @@ window.removeGoal = removeGoal;
 
 let chatHistory = [];
 let userApiKey = localStorage.getItem('mi_cartera:api_key') || '';
+
+document.getElementById('toggleApiKeyBtn').addEventListener('click', () => {
+  const box = document.getElementById('apiKeyBox');
+  const isOpen = box.style.display === 'block';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    document.getElementById('apiKeyInput').value = '';
+    document.getElementById('apiKeyInput').focus();
+  }
+});
 
 document.getElementById('saveApiKeyBtn').addEventListener('click', () => {
   const val = document.getElementById('apiKeyInput').value.trim();
